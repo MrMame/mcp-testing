@@ -23,6 +23,8 @@ Alles auf Deutsch: Doku, Kommentare, Log- und UI-Texte, Commit-Messages. Bezeich
 ```bash
 npm run dev         # Server (HTTP-Transport, :3000/mcp) + Monitor (:3001) + Vite (:5173)
 npm run build       # alle Pakete bauen
+npm run bundle      # build + bundle/: Server als Einzeldatei samt UI, zum Kopieren in andere Projekte
+npm run bundled     # das gebaute Bundle starten (HTTP-Transport, :3200/mcp, Monitor :3201)
 npm run check       # typecheck + lint + test – vor jedem Commit
 npm run typecheck   # tsc -b (shared, server) und tsc -p packages/web
 npm run lint        # biome check
@@ -58,4 +60,6 @@ npm test            # vitest run
 | 3000 | MCP Streamable HTTP (`/mcp`)                          |
 | 3001 | Monitor-API/WebSocket/UI (`npm run dev`)              |
 | 3101 | Monitor der von Claude Code gestarteten stdio-Instanz |
+| 3200 | MCP Streamable HTTP des Bundles (`npm run bundled`)   |
+| 3201 | Monitor des Bundles (`npm run bundled`)               |
 | 5173 | Vite-Dev-Server der UI                                |

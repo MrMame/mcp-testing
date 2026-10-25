@@ -61,11 +61,21 @@ export function startHttpMcp(monitor: Monitor, port: number): Promise<Server> {
   app.delete('/mcp', handleSessionRequest);
 
   return new Promise((resolve, reject) => {
-    const server = app.listen(port, '127.0.0.1', () => {
+    // Express 5 ruft den Callback auch bei Fehlern auf (z. B. Port belegt), dann mit `err`.
+    const server = app.listen(port, '127.0.0.1', (err?: NodeJS.ErrnoException) => {
+      if (err) {
+        reject(
+          err.code === 'EADDRINUSE'
+            ? new Error(
+                `Port ${port} ist bereits belegt (läuft schon eine Instanz, z. B. npm run dev?)`,
+              )
+            : err,
+        );
+        return;
+      }
       const { port: actual } = server.address() as AddressInfo;
       log.info(`MCP-Server läuft auf http://127.0.0.1:${actual}/mcp`);
       resolve(server);
     });
-    server.once('error', reject);
   });
 }

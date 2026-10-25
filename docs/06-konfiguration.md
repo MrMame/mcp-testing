@@ -35,6 +35,45 @@ Andere Hosts nutzen sehr ähnliche Formate (z. B. `claude_desktop_config.json` b
 
 **Ablauf beim Start einer Claude-Code-Sitzung:** Claude Code liest `.mcp.json`, startet den Prozess, schickt `initialize`, fragt mit `tools/list` die Tools ab und stellt sie dem Modell zur Verfügung. Die ganze Unterhaltung ist danach in der Monitoring-Oberfläche unter <http://127.0.0.1:3101> sichtbar, wenn vorher `npm run build` lief (sonst zeigt die Seite nur einen Hinweis).
 
+## Server in anderen Projekten nutzen (Bundle)
+
+`packages/server/dist` lässt sich nicht einfach in ein anderes Projekt kopieren: `tsc` übersetzt nur den eigenen Code, die Imports von `@modelcontextprotocol/*`, `express`, `ws` und `zod` lösen sich weiterhin über `node_modules` auf. Im fremden Projekt fehlen sie, und Node bricht mit „Cannot find package '@modelcontextprotocol/express'“ ab. Der Host meldet dann nur, der Server habe sich nicht starten lassen.
+
+Dafür gibt es `npm run bundle`. Es baut alles und packt danach mit esbuild ([`scripts/bundle.mjs`](../scripts/bundle.mjs)) den Server samt aller Abhängigkeiten in eine Datei:
+
+```text
+bundle/
+├── mcp-testing-server.mjs       Server + Abhängigkeiten (eine Datei)
+├── mcp-testing-server.mjs.map   Sourcemap für lesbare Stacktraces
+└── web/                         gebaute Monitoring-Oberfläche
+```
+
+Vor dem Kopieren lässt sich das Bundle hier prüfen: `npm run bundled` startet `bundle/mcp-testing-server.mjs` mit dem HTTP-Transport (MCP unter <http://127.0.0.1:3200/mcp>, Oberfläche unter <http://127.0.0.1:3201>). Die eigenen Ports erlauben, es parallel zu `npm run dev` (3000/3001) und zur Claude-Code-Instanz (3101) laufen zu lassen.
+
+Den Ordner kopiert man z. B. als `mcp-server/` in das Testprojekt. Es braucht dort nur Node.js ≥ 26, kein `npm install`. Eintrag für VS Code/Copilot in `.vscode/mcp.json` des Testprojekts:
+
+```json
+{
+  "servers": {
+    "mcp-testing": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/mcp-server/mcp-testing-server.mjs",
+        "--transport",
+        "stdio",
+        "--monitor-port",
+        "3101",
+        "--db",
+        "${workspaceFolder}/mcp-server/data/monitor.db"
+      ]
+    }
+  }
+}
+```
+
+`--db` sollte man angeben. Sonst landet die Datenbank in `data/monitor.db` relativ zu dem Verzeichnis, in dem der Host den Prozess startet. Die Oberfläche ist dann unter <http://127.0.0.1:3101> erreichbar.
+
 ## `.claude/`: Harness für Claude Code
 
 Diese Dateien konfigurieren Claude Code als Entwicklungswerkzeug. Mit dem MCP-Protokoll haben sie nur an einer Stelle zu tun:
@@ -66,7 +105,8 @@ Anforderungen mit Entscheidungsprotokoll bzw. Kurzanleitung.
 | `tsconfig.json`                   | verweist auf `shared` und `server`; `tsc -b` baut beide in der richtigen Reihenfolge          |
 | `biome.json`                      | Lint- und Format-Regeln für Code und Markdown                                                 |
 | `vitest.config.ts`                | findet alle `*.test.ts` in den Paketen                                                        |
-| `.gitignore`                      | schließt u. a. `node_modules`, `dist` und die Logs in `data/` aus                             |
+| `scripts/bundle.mjs`              | baut `bundle/` für den Einsatz in anderen Projekten (siehe oben)                              |
+| `.gitignore`                      | schließt u. a. `node_modules`, `dist`, `bundle` und die Logs in `data/` aus                   |
 | `.gitattributes`, `.editorconfig` | einheitliche Zeilenenden (LF) und Einrückung                                                  |
 | `.nvmrc`                          | Node-Version 26 für Versionsmanager                                                           |
 | `.vscode/`                        | empfohlene Erweiterungen (Biome, Vitest) und Formatieren beim Speichern                       |

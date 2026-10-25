@@ -187,7 +187,7 @@ Die `rpc_id` wird als JSON gespeichert, weil JSON-RPC sowohl Zahlen als auch Tex
 - `GET /api/events`: gespeicherte Events, filterbar nach Sitzung, Methode und ID
 - `GET /api/sessions`: Sitzungen
 - WebSocket `/ws`: Live-Events an den Browser; Rückkanal für spätere Steuerbefehle
-- `/`: die gebaute Oberfläche aus `packages/web/dist`
+- `/`: die gebaute Oberfläche. Gesucht wird zuerst `web/` neben der laufenden Datei (das ist beim Bundle der Fall, siehe [Kapitel 6](06-konfiguration.md#server-in-anderen-projekten-nutzen-bundle)), dann `packages/web/dist` im Repo.
 
 **Bezug zu MCP:** Dieser Server spricht **kein** MCP. Er ist bewusst vom MCP-Endpunkt getrennt, damit der Beobachtungskanal den beobachteten Verkehr nicht beeinflusst. Er übernimmt aber dieselben Schutzmaßnahmen, die MCP für lokale HTTP-Server empfiehlt: nur `127.0.0.1`, Prüfung des `Host`-Headers und beim WebSocket Prüfung der `Origin`.
 

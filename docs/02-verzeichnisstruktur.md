@@ -1,6 +1,6 @@
 # 2. Verzeichnisstruktur
 
-Ohne `node_modules/`, Build-Ausgaben (`dist/`) und Laufzeitdaten.
+Ohne `node_modules/`, Build-Ausgaben (`dist/`, `bundle/`) und Laufzeitdaten.
 
 ```text
 mcp-testing/
@@ -35,6 +35,8 @@ mcp-testing/
 │           ├── useMonitor.ts    Verlauf laden + Live-Updates per WebSocket
 │           └── styles.css
 │
+├── scripts/
+│   └── bundle.mjs               baut bundle/: Server als Einzeldatei + UI, zum Kopieren
 ├── docs/                        diese Dokumentation
 ├── data/                        SQLite-Datenbank mit den Logs (nicht im Git)
 │

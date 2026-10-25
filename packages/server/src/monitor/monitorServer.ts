@@ -9,7 +9,11 @@ import { WebSocketServer } from 'ws';
 import { log } from '../log.js';
 import type { Monitor } from './monitor.js';
 
-const WEB_DIST = fileURLToPath(new URL('../../../web/dist', import.meta.url));
+// Gebaute Oberfläche: neben dem Bundle (`bundle/web`, siehe scripts/bundle.mjs)
+// oder im Repo unter packages/web/dist (relativ zu dist/monitor bzw. src/monitor).
+const WEB_DIST = [new URL('./web', import.meta.url), new URL('../../../web/dist', import.meta.url)]
+  .map((url) => fileURLToPath(url))
+  .find((dir) => existsSync(dir));
 const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
 
 /**
@@ -38,7 +42,7 @@ export function startMonitorServer(monitor: Monitor, port: number): Promise<Serv
     );
   });
 
-  if (existsSync(WEB_DIST)) {
+  if (WEB_DIST) {
     app.use(express.static(WEB_DIST));
   } else {
     app.get('/', (_req, res) => {
@@ -56,6 +60,9 @@ export function startMonitorServer(monitor: Monitor, port: number): Promise<Serv
     verifyClient: ({ origin }: { origin: string | undefined }) =>
       !origin || LOCAL_ORIGIN.test(origin),
   });
+  // ws reicht Fehler des HTTP-Servers (z. B. EADDRINUSE) an den WebSocketServer weiter.
+  // Ohne Listener würde das den Prozess beenden; behandelt werden sie unten beim listen().
+  wss.on('error', () => {});
 
   const broadcast = (msg: ServerToUiMessage) => {
     const data = JSON.stringify(msg);
@@ -80,7 +87,15 @@ export function startMonitorServer(monitor: Monitor, port: number): Promise<Serv
   });
 
   return new Promise((resolve, reject) => {
-    server.once('error', reject);
+    server.once('error', (err: NodeJS.ErrnoException) => {
+      reject(
+        err.code === 'EADDRINUSE'
+          ? new Error(
+              `Port ${port} ist bereits belegt (läuft schon eine Instanz, z. B. npm run dev?)`,
+            )
+          : err,
+      );
+    });
     server.listen(port, '127.0.0.1', () => {
       const { port: actual } = server.address() as AddressInfo;
       log.info(`Monitoring-Oberfläche auf http://127.0.0.1:${actual}`);

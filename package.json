@@ -15,6 +15,8 @@
   "scripts": {
     "dev": "concurrently -n server,web -c blue,magenta \"npm run dev -w @mcp-testing/server\" \"npm run dev -w @mcp-testing/web\"",
     "build": "npm run build -w @mcp-testing/shared && npm run build -w @mcp-testing/server && npm run build -w @mcp-testing/web",
+    "bundle": "npm run build && node scripts/bundle.mjs",
+    "bundled": "node bundle/mcp-testing-server.mjs --transport http --port 3200 --monitor-port 3201",
     "start": "node packages/server/dist/index.js",
     "typecheck": "tsc -b && tsc -p packages/web",
     "lint": "biome check .",
@@ -27,6 +29,7 @@
     "@biomejs/biome": "^2.6.3",
     "@types/node": "^26.6.5",
     "concurrently": "^10.0.6",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
