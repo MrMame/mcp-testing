@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "mcp-testing": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "--import",
+        "tsx",
+        "packages/server/src/index.ts",
+        "--transport",
+        "stdio",
+        "--monitor-port",
+        "3101"
+      ]
+    }
+  }
+}

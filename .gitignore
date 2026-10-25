@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+
+# Laufzeitdaten (SQLite-Logs)
+data/*
+!data/.gitkeep
+
+# Lokale Claude-Code-Einstellungen
+.claude/settings.local.json
+
+.env
+.env.*
+*.log
