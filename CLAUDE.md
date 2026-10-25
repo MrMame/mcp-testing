@@ -40,6 +40,10 @@ npm test            # vitest run
 - Server-Code bindet nur an `127.0.0.1`; der Monitor prüft Host-Header und WebSocket-Origin.
 - Tests liegen neben dem Code (`*.test.ts`). Für MCP-Abläufe einen echten `Client` aus `@modelcontextprotocol/client` verwenden (`InMemoryTransport` oder HTTP auf Port 0), siehe vorhandene Tests.
 
+## Dokumentation
+
+`docs/` erklärt jede Datei mit Bezug zum MCP-Protokoll. Bei Änderungen an Dateien, Struktur oder Nachrichtenfluss die betroffenen Kapitel mitpflegen. Beispielnachrichten in `docs/03-nachrichtenfluss.md` stammen aus echten Mitschnitten und sollen das auch weiterhin tun.
+
 ## Harness
 
 - `.claude/settings.json`: Berechtigungen, Hooks, Freigabe des Projekt-MCP-Servers.

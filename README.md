@@ -37,5 +37,6 @@ Optionen: `node packages/server/dist/index.js --help`
 
 ## Weitere Doku
 
+- [docs/](docs/README.md) – Projekt und Dateien erklärt, jeweils mit Bezug zum MCP-Protokoll
 - [REQUIREMENTS.md](REQUIREMENTS.md) – Anforderungen
 - [CLAUDE.md](CLAUDE.md) – Architektur, Befehle und Konventionen
